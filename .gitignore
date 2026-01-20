@@ -1,0 +1,41 @@
+# Rust (Backend)
+backend/target/
+backend/**/*.rs.bk
+backend/*.pdb
+
+# Environment & Secrets
+backend/.env
+backend/.env.local
+backend/.env.*.local
+*.key
+*.pem
+
+# Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+tags
+
+# IDE & Editors
+.vscode/
+.idea/
+*.iml
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Docker
+docker-compose.override.yml
+
+# Logs & Temp
+*.log
+*.bak
+*.tmp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
