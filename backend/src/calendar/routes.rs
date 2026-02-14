@@ -13,10 +13,10 @@ async fn get_events(
 ) -> Result<Json<Vec<CalendarEvent>>, (StatusCode, String)> {
     let response = state
         .client
-        .get(&state.calendar_events_url())
+        .get(state.calendar_events_url())
         .header("apikey", &state.supabase_key)
         .header("Authorization", format!("Bearer {}", state.supabase_key))
-        .query(&[("select", "*"), ("order", "date.asc")])
+        .query(&[("select", "*")])
         .send()
         .await
         .map_err(|e| {
@@ -54,10 +54,11 @@ async fn get_event(
 ) -> Result<Json<CalendarEvent>, (StatusCode, String)> {
     let response = state
         .client
-        .get(&state.calendar_events_url())
+        .get(state.calendar_events_url())
         .header("apikey", &state.supabase_key)
         .header("Authorization", format!("Bearer {}", state.supabase_key))
-        .query(&[("id", format!("eq.{}", id)), ("select", "*".to_string())])
+        .query(&[("id", format!("eq.{}", id))])
+        .query(&[("select", "*")])
         .send()
         .await
         .map_err(|e| {
@@ -68,12 +69,18 @@ async fn get_event(
             )
         })?;
 
-    let mut events = response.json::<Vec<CalendarEvent>>().await.map_err(|_| {
+    let status = response.status();
+    tracing::info!("Supabase response status: {}", status);
+
+    let mut events = response.json::<Vec<CalendarEvent>>().await.map_err(|e| {
+        tracing::error!("Failed to parse response: {}", e);
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "Failed to parse event".to_string(),
         )
     })?;
+
+    tracing::info!("{:?}", events);
 
     events
         .pop()
@@ -95,7 +102,7 @@ async fn create_event(
 
     let response = state
         .client
-        .post(&state.calendar_events_url())
+        .post(state.calendar_events_url())
         .header("apikey", &state.supabase_key)
         .header("Authorization", format!("Bearer {}", state.supabase_key))
         .header("Content-Type", "application/json")
@@ -159,7 +166,7 @@ async fn update_event(
 
     let response = state
         .client
-        .patch(&format!("{}?id=eq.{}", state.calendar_events_url(), id))
+        .patch(format!("{}?id=eq.{}", state.calendar_events_url(), id))
         .header("apikey", &state.supabase_key)
         .header("Authorization", format!("Bearer {}", state.supabase_key))
         .header("Content-Type", "application/json")
@@ -195,7 +202,7 @@ async fn delete_event(
 ) -> Result<StatusCode, (StatusCode, String)> {
     let response = state
         .client
-        .delete(&format!("{}?id=eq.{}", state.calendar_events_url(), id))
+        .delete(format!("{}?id=eq.{}", state.calendar_events_url(), id))
         .header("apikey", &state.supabase_key)
         .header("Authorization", format!("Bearer {}", state.supabase_key))
         .send()
