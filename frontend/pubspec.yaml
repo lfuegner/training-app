@@ -1,0 +1,52 @@
+name: frontend
+description: "XTraining - Sports tracking and management app."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing
+  auto_route: ^9.2.2
+
+  # Dependency injection
+  get_it: ^8.0.3
+  injectable: ^2.5.0
+
+  # Immutable models
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Icons
+  phosphor_flutter: ^2.1.0
+
+  # Calendar
+  table_calendar: ^3.2.0
+  intl: ^0.20.2
+
+  # Country flags
+  country_flags: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code generation
+  build_runner: ^2.4.14
+  auto_route_generator: ^9.0.0
+  freezed: ^2.5.7
+  json_serializable: ^6.9.4
+  riverpod_generator: ^2.6.3
+  injectable_generator: ^2.7.0
+
+flutter:
+  uses-material-design: true
