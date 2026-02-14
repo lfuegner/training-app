@@ -1,24 +1,3 @@
-/target/
-
-# Rust (Backend)
-backend/target/
-backend/**/*.rs.bk
-backend/*.pdb
-
-# Environment & Secrets
-backend/.env
-backend/.env.local
-backend/.env.*.local
-*.key
-*.pem
-
-# Neovim
-*.swp
-*.swo
-*~
-.netrwhist
-tags
-
 # IDE & Editors
 .vscode/
 .idea/
@@ -29,6 +8,13 @@ tags
 Thumbs.db
 Desktop.ini
 
+# Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+tags
+
 # Docker
 docker-compose.override.yml
 
@@ -36,8 +22,3 @@ docker-compose.override.yml
 *.log
 *.bak
 *.tmp
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
