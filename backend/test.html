@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Calendar - System Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #E50914;
+            padding-bottom: 20px;
+        }
+        
+        .logo {
+            background: #E50914;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 24px;
+            border-radius: 4px;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        /* Architecture Canvas */
+        .architecture {
+            position: relative;
+            width: 100%;
+            height: 900px;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+        }
+        
+        /* Component Styles */
+        .component {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .component:hover {
+            transform: scale(1.05);
+        }
+        
+        .icon-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border: 3px solid;
+            background: white;
+        }
+        
+        .component-label {
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            font-size: 14px;
+            max-width: 120px;
+        }
+        
+        .component-sublabel {
+            color: #666;
+            font-size: 11px;
+            text-align: center;
+        }
+        
+        /* Color themes for different component types */
+        .client .icon-box {
+            border-color: #4F46E5;
+            background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+            color: white;
+        }
+        
+        .backend .icon-box {
+            border-color: #059669;
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        
+        .auth .icon-box {
+            border-color: #DC2626;
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            color: white;
+        }
+        
+        .database .icon-box {
+            border-color: #7C3AED;
+            background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+            color: white;
+        }
+        
+        .cloud .icon-box {
+            border-color: #0891B2;
+            background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+            color: white;
+        }
+        
+        .storage .icon-box {
+            border-color: #F59E0B;
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            color: white;
+        }
+        
+        /* Connection Lines */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .component {
+            z-index: 1;
+        }
+        
+        /* Arrow animations */
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+        
+        .flow-line {
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 8, 5;
+            animation: dash 0.8s linear infinite;
+        }
+        
+        .auth-flow {
+            stroke: #DC2626;
+        }
+        
+        .api-flow {
+            stroke: #059669;
+        }
+        
+        .data-flow {
+            stroke: #7C3AED;
+        }
+        
+        .token-flow {
+            stroke: #F59E0B;
+        }
+        
+        /* Flow labels */
+        .flow-label {
+            position: absolute;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        
+        .flow-label.auth {
+            color: #DC2626;
+            border: 1px solid #DC2626;
+        }
+        
+        .flow-label.api {
+            color: #059669;
+            border: 1px solid #059669;
+        }
+        
+        .flow-label.data {
+            color: #7C3AED;
+            border: 1px solid #7C3AED;
+        }
+        
+        .flow-label.token {
+            color: #F59E0B;
+            border: 1px solid #F59E0B;
+        }
+        
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border: 2px solid #dee2e6;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        /* Location badges */
+        .location-badge {
+            position: absolute;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .location-badge::before {
+            content: '📍';
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">SPORTS.ME</div>
+            <div>
+                <div class="title">SYSTEM DESIGN</div>
+                <div class="subtitle">High Level Architecture</div>
+            </div>
+        </div>
+        
+        <div class="architecture">
+            <!-- Location Badges -->
+            <div class="location-badge" style="top: 20px; left: 20px;">User Device</div>
+            <div class="location-badge" style="top: 20px; right: 300px;">Frankfurt, Germany</div>
+            
+            <!-- SVG for connections -->
+            <svg>
+                <!-- Auth Flow: Flutter to Supabase Auth -->
+                <path class="flow-line auth-flow" d="M 250 200 Q 250 100, 600 100" marker-end="url(#arrowRed)"/>
+                <path class="flow-line auth-flow" d="M 600 130 Q 250 130, 250 220" marker-end="url(#arrowRed)"/>
+                
+                <!-- API Flow: Flutter to Rust Backend -->
+                <path class="flow-line api-flow" d="M 300 250 L 800 250" marker-end="url(#arrowGreen)"/>
+                <path class="flow-line api-flow" d="M 800 280 L 300 280" marker-end="url(#arrowGreen)"/>
+                
+                <!-- Data Flow: Rust to Database -->
+                <path class="flow-line data-flow" d="M 900 250 L 1200 250" marker-end="url(#arrowPurple)"/>
+                <path class="flow-line data-flow" d="M 1200 280 L 900 280" marker-end="url(#arrowPurple)"/>
+                
+                <!-- Token Flow: Auth to Backend (shown as dashed) -->
+                <path class="flow-line token-flow" d="M 650 150 Q 800 150, 850 220" marker-end="url(#arrowOrange)"/>
+                
+                <!-- Token Storage: Flutter to Secure Storage -->
+                <path class="flow-line token-flow" d="M 250 300 L 250 420" marker-end="url(#arrowOrange)"/>
+                
+                <!-- RLS Enforcement -->
+                <path class="flow-line data-flow" d="M 1250 300 L 1250 400" marker-end="url(#arrowPurple)" stroke-dasharray="4,4"/>
+                
+                <!-- Markers for arrows -->
+                <defs>
+                    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#DC2626" />
+                    </marker>
+                    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#059669" />
+                    </marker>
+                    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#7C3AED" />
+                    </marker>
+                    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#F59E0B" />
+                    </marker>
+                </defs>
+            </svg>
+            
+            <!-- Components -->
+            
+            <!-- Flutter App -->
+            <div class="component client" style="left: 200px; top: 150px;">
+                <div class="icon-box">📱</div>
+                <div class="component-label">Flutter App</div>
+                <div class="component-sublabel">iOS / Android / Web</div>
+            </div>
+            
+            <!-- Supabase Auth -->
+            <div class="component auth" style="left: 550px; top: 50px;">
+                <div class="icon-box">🔐</div>
+                <div class="component-label">Supabase Auth</div>
+                <div class="component-sublabel">JWT Token Service</div>
+            </div>
+            
+            <!-- Rust Backend -->
+            <div class="component backend" style="left: 800px; top: 200px;">
+                <div class="icon-box">🦀</div>
+                <div class="component-label">Rust API</div>
+                <div class="component-sublabel">Axum @ Fly.io</div>
+            </div>
+            
+            <!-- PostgreSQL Database -->
+            <div class="component database" style="left: 1200px; top: 200px;">
+                <div class="icon-box">🗄️</div>
+                <div class="component-label">PostgreSQL</div>
+                <div class="component-sublabel">calendar_events</div>
+            </div>
+            
+            <!-- Secure Storage -->
+            <div class="component storage" style="left: 200px; top: 400px;">
+                <div class="icon-box">🔒</div>
+                <div class="component-label">Secure Storage</div>
+                <div class="component-sublabel">JWT Tokens</div>
+            </div>
+            
+            <!-- RLS Policies -->
+            <div class="component database" style="left: 1200px; top: 400px;">
+                <div class="icon-box">🛡️</div>
+                <div class="component-label">RLS Policies</div>
+                <div class="component-sublabel">auth.uid() filter</div>
+            </div>
+            
+            <!-- Cloud Infrastructure -->
+            <div class="component cloud" style="left: 1000px; top: 50px;">
+                <div class="icon-box">☁️</div>
+                <div class="component-label">Fly.io</div>
+                <div class="component-sublabel">Frankfurt Region</div>
+            </div>
+            
+            <div class="component cloud" style="left: 1400px; top: 50px;">
+                <div class="icon-box">☁️</div>
+                <div class="component-label">Supabase</div>
+                <div class="component-sublabel">Frankfurt Region</div>
+            </div>
+            
+            <!-- User Icon -->
+            <div class="component client" style="left: 50px; top: 200px;">
+                <div class="icon-box">👤</div>
+                <div class="component-label">User</div>
+                <div class="component-sublabel">Player</div>
+            </div>
+            
+            <!-- Flow Labels -->
+            <div class="flow-label auth" style="left: 380px; top: 90px;">1. LOGIN</div>
+            <div class="flow-label auth" style="left: 380px; top: 120px;">2. JWT TOKEN</div>
+            <div class="flow-label api" style="left: 500px; top: 235px;">3. API REQUEST</div>
+            <div class="flow-label api" style="left: 500px; top: 285px;">6. RESPONSE</div>
+            <div class="flow-label data" style="left: 1000px; top: 235px;">4. QUERY</div>
+            <div class="flow-label data" style="left: 1000px; top: 285px;">5. DATA</div>
+            <div class="flow-label token" style="left: 720px; top: 160px;">JWT</div>
+            <div class="flow-label token" style="left: 160px; top: 350px;">STORE</div>
+            <div class="flow-label data" style="left: 1150px; top: 350px;">FILTER</div>
+            
+            <!-- Request/Response boxes -->
+            <div style="position: absolute; left: 400px; top: 450px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #DC2626; max-width: 300px;">
+                <div style="font-weight: bold; color: #DC2626; margin-bottom: 8px;">🔑 LOGIN REQUEST</div>
+                <div style="font-family: monospace; font-size: 11px; color: #333;">
+                    POST /auth/v1/token<br>
+                    {<br>
+                    &nbsp;&nbsp;email: "user@example.com",<br>
+                    &nbsp;&nbsp;password: "******"<br>
+                    }
+                </div>
+            </div>
+            
+            <div style="position: absolute; left: 400px; top: 600px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #059669; max-width: 300px;">
+                <div style="font-weight: bold; color: #059669; margin-bottom: 8px;">📡 API REQUEST</div>
+                <div style="font-family: monospace; font-size: 11px; color: #333;">
+                    GET /events<br>
+                    Authorization: Bearer eyJhbG...
+                </div>
+            </div>
+            
+            <div style="position: absolute; left: 800px; top: 450px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #7C3AED; max-width: 350px;">
+                <div style="font-weight: bold; color: #7C3AED; margin-bottom: 8px;">🗄️ DATABASE QUERY</div>
+                <div style="font-family: monospace; font-size: 11px; color: #333;">
+                    SELECT * FROM calendar_events<br>
+                    WHERE user_id = auth.uid()<br>
+                    -- RLS automatically filters!
+                </div>
+            </div>
+            
+            <div style="position: absolute; left: 800px; top: 600px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #10B981; max-width: 350px;">
+                <div style="font-weight: bold; color: #10B981; margin-bottom: 8px;">✅ RESPONSE</div>
+                <div style="font-family: monospace; font-size: 11px; color: #333;">
+                    [{<br>
+                    &nbsp;&nbsp;id: 1,<br>
+                    &nbsp;&nbsp;user_id: "user-123",<br>
+                    &nbsp;&nbsp;title: "Tennis Match",<br>
+                    &nbsp;&nbsp;start_time: "2026-01-25..."<br>
+                    }]
+                </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-title">FLOW TYPES</div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #DC2626;"></div>
+                    <span>Authentication Flow</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #059669;"></div>
+                    <span>API Request/Response</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #7C3AED;"></div>
+                    <span>Database Query</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #F59E0B;"></div>
+                    <span>Token Management</span>
+                </div>
+            </div>
+            
+            <!-- Security Note -->
+            <div style="position: absolute; bottom: 20px; left: 20px; background: #FFF5F5; padding: 15px; border-radius: 8px; border: 2px solid #FC8181; max-width: 350px;">
+                <div style="font-weight: bold; color: #C53030; margin-bottom: 8px;">🔒 SECURITY</div>
+                <div style="font-size: 11px; color: #742A2A; line-height: 1.5;">
+                    • JWT tokens cryptographically signed<br>
+                    • RLS enforces user isolation at DB level<br>
+                    • No manual user_id filtering needed<br>
+                    • Defense in depth architecture
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

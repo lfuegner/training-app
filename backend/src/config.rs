@@ -27,7 +27,7 @@ pub fn load_config() -> (String, String) {
     let supabase_url =
         std::env::var("SUPABASE_URL").expect("SUPABASE_URL must be set in .env file");
     let supabase_key =
-        std::env::var("SUPABASE_ANON_KEY").expect("SUPABASE_ANON_KEY must be set in .env file");
+        std::env::var("SUPABASE_SERVICE_KEY").expect("SUPABASE_ANON_KEY must be set in .env file");
 
     (supabase_url, supabase_key)
 }

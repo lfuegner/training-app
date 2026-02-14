@@ -1,3 +1,5 @@
+/target/
+
 # Rust (Backend)
 backend/target/
 backend/**/*.rs.bk
